@@ -1,18 +1,74 @@
 import sys
 import datetime
-from PyQt5.QtGui import QPixmap, QTextCursor
-from PyQt5.QtCore import QSize, Qt, QRect, QDate, QDateTime, QUrl
-from PyQt5.QtWidgets import (
-    QApplication,
-    QLineEdit,
-    QMainWindow,
-    QWidget,
-    QLabel,
-    QDateEdit,
-    QPushButton,
-    QComboBox,
-    QFormLayout,
-)
+from PyQt5.QtCore import QRect
+from PyQt5.QtWidgets import (QApplication, QLineEdit, QMainWindow, QWidget, QLabel,
+                             QDateEdit, QPushButton, QComboBox, QFormLayout, QGridLayout, QMessageBox, QDialog)
+
+
+class LoginWindow(QDialog):
+    def __init__(self, parent=None):
+        super(LoginWindow, self).__init__(parent)
+
+        self.setWindowTitle("Login Form")
+        self.resize(500, 200)
+
+        layout = QGridLayout()
+        self.setStyleSheet(
+            "background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(209, 107, 165, 255), stop:1 rgba(255,255,255,255));")
+
+        username_label = QLabel("Username:")
+        username_label.setStyleSheet("font-size: 12pt; \
+                                      background-color: rgba(0,0,0,0%); \
+                                      color: white;")
+
+        self.username_lineEdit = QLineEdit()
+        self.username_lineEdit.setStyleSheet(
+            "font-size: 12pt; background-color: rgba(0,0,0,0%);")
+        self.username_lineEdit.setPlaceholderText("Please enter username")
+        layout.addWidget(username_label, 0, 0)
+        layout.addWidget(self.username_lineEdit, 0, 1)
+
+        password_label = QLabel("Password:")
+        password_label.setStyleSheet("font-size: 12pt;\
+                                      background-color: rgba(0,0,0,0%);")
+
+        self.password_lineEdit = QLineEdit()
+        self.password_lineEdit.setStyleSheet(
+            "font-size: 12pt; background-color: rgba(0,0,0,0%);")
+        self.password_lineEdit.setPlaceholderText("Please enter password")
+        layout.addWidget(password_label, 1, 0)
+        layout.addWidget(self.password_lineEdit, 1, 1)
+
+        self.login_QPushButton = QPushButton()
+        self.login_QPushButton.setText("Login")
+        self.login_QPushButton.setStyleSheet(
+            "QPushButton"
+            "{"
+            "font-size: 14pt; \
+                                border-style: solid; \
+                                border-radius: 10px; \
+                                background-color: rgb(145, 255, 246)"
+            "}"
+            "QPushButton::pressed"
+            "{"
+            "font-size: 14pt; \
+                                border-style: solid; \
+                                border-radius: 10px; \
+                                background-color: rgb(0, 217, 199)"
+            "}"
+        )
+        self.login_QPushButton.clicked.connect(self.handle_login)
+        layout.addWidget(self.login_QPushButton, 2, 1)
+
+        self.setLayout(layout)
+
+    def handle_login(self):
+
+        if self.username_lineEdit.text() == "" and self.password_lineEdit.text() == "":
+            self.accept()
+        else:
+            QMessageBox.warning(
+                self, "Error", "Invalid Credentials. Please Try again.")
 
 
 class MainWindow(QMainWindow):
@@ -22,6 +78,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Weather On Route')
         self.resize(800, 600)
         self.layout = QFormLayout()
+        self.setStyleSheet(
+            "background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(209, 107, 165, 255), stop:1 rgba(255,255,255,255));")
 
         self.origin = QLineEdit()
         self.origin.setPlaceholderText("Starting address here")
@@ -65,19 +123,23 @@ class MainWindow(QMainWindow):
                                 border-color: white;")
 
         self.origin_label = QLabel("Origin:")
-        self.origin_label.setStyleSheet("font-size: 14pt")
+        self.origin_label.setStyleSheet(
+            "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.origin_label, self.origin)
 
         self.destination_label = QLabel("Destination:")
-        self.destination_label.setStyleSheet("font-size: 14pt")
+        self.destination_label.setStyleSheet(
+            "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.destination_label, self.destination)
 
         self.weather_type_label = QLabel("Weather Type:")
-        self.weather_type_label.setStyleSheet("font-size: 14pt")
+        self.weather_type_label.setStyleSheet(
+            "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.weather_type_label, self.weather_type)
 
         self.travel_date_label = QLabel("Date of Travel:")
-        self.travel_date_label.setStyleSheet("font-size: 14pt")
+        self.travel_date_label.setStyleSheet(
+            "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.travel_date_label, self.date)
 
         # adding pushbutton
@@ -91,7 +153,7 @@ class MainWindow(QMainWindow):
                                 border-radius: 10px; \
                                 border-width: 1.5px; \
                                 border-color: white; \
-                                background-color: rgb(20, 173, 173)"
+                                background-color: rgb(145, 255, 246)"
             "}"
             "QPushButton::pressed"
             "{"
@@ -100,7 +162,7 @@ class MainWindow(QMainWindow):
                                 border-radius: 10px; \
                                 border-width: 1.5px; \
                                 border-color: white; \
-                                background-color: rgb(133, 230, 230)"
+                                background-color: rgb(0, 217, 199)"
             "}"
         )
         self.pushButton.setGeometry(QRect(200, 150, 93, 28))
@@ -120,6 +182,11 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec_()
+
+    login = LoginWindow()
+
+    if login.exec_() == QDialog.Accepted:
+        print("hi")
+        main_window = MainWindow()
+        main_window.show()
+        sys.exit(app.exec_())
