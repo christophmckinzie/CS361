@@ -1,66 +1,92 @@
 import sys
 import datetime
-from PyQt5.QtCore import QRect
+from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import (QApplication, QLineEdit, QMainWindow, QWidget, QLabel,
-                             QDateEdit, QPushButton, QComboBox, QFormLayout, QGridLayout, QMessageBox, QDialog)
+                             QDateEdit, QPushButton, QComboBox, QFormLayout, QGridLayout, QMessageBox, QDialog, QMenu, QMenuBar)
 
 
-class LoginWindow(QDialog):
-    def __init__(self, parent=None):
-        super(LoginWindow, self).__init__(parent)
+from PyQt5.QtCore import Qt, QSize, QTimer
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QWidget, QFrame,
+                             QPushButton, QGridLayout, QSpacerItem, QMessageBox,
+                             QSizePolicy, QLabel, QApplication, QLineEdit)
 
-        self.setWindowTitle("Login Form")
-        self.resize(500, 200)
 
-        layout = QGridLayout()
-        self.setStyleSheet(
-            "background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(209, 107, 165, 255), stop:1 rgba(255,255,255,255));")
+class LoginForm(QDialog):
 
-        username_label = QLabel("Username:")
-        username_label.setStyleSheet("font-size: 12pt; \
-                                      background-color: rgba(0,0,0,0%); \
-                                      color: white;")
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        self.setObjectName('Custom_Dialog')
+        self.setWindowFlags(self.windowFlags() |
+                            Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet(Stylesheet)
+
+        self.initUi()
+
+    def initUi(self):
+        # widget is used as background and rounded corners.
+        self.widget = QWidget(self)
+        self.widget.setObjectName('Custom_Widget')
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.widget)
+
+        # user interface to widgets
+        layout = QGridLayout(self.widget)
+        # layout.addItem(QSpacerItem(
+        #     0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum), 1, 0)
+
+        self.login_exit_button = QPushButton(
+            'r', self, clicked=self.accept, objectName='closeButton')
+        self.login_exit_button.clicked.connect(self.exit_app)
+        layout.addWidget(self.login_exit_button, 0, 4)
+
+        login_label = QLabel("       ")
+        layout.addWidget(login_label, 1, 2, Qt.AlignCenter)
 
         self.username_lineEdit = QLineEdit()
+        self.username_lineEdit.setPlaceholderText("  Username")
         self.username_lineEdit.setStyleSheet(
-            "font-size: 12pt; background-color: rgba(0,0,0,0%);")
-        self.username_lineEdit.setPlaceholderText("Please enter username")
-        layout.addWidget(username_label, 0, 0)
-        layout.addWidget(self.username_lineEdit, 0, 1)
+            "background-color: rgba(0,0,0,0); font-size: 14pt; border: none; color:white;")
+        layout.addWidget(self.username_lineEdit, 2, 3)
 
-        password_label = QLabel("Password:")
-        password_label.setStyleSheet("font-size: 12pt;\
-                                      background-color: rgba(0,0,0,0%);")
+        line1 = QFrame()
+        line1.setFrameShape(QFrame.HLine)
+        line1.setFrameShadow(QFrame.Sunken)
+        layout.addWidget(line1, 3, 3)
 
         self.password_lineEdit = QLineEdit()
+        self.password_lineEdit.setPlaceholderText("  Password")
         self.password_lineEdit.setStyleSheet(
-            "font-size: 12pt; background-color: rgba(0,0,0,0%);")
-        self.password_lineEdit.setPlaceholderText("Please enter password")
-        layout.addWidget(password_label, 1, 0)
-        layout.addWidget(self.password_lineEdit, 1, 1)
+            "background-color: rgba(0,0,0,0); font-size: 14pt; border: none; color: white;")
+        layout.addWidget(self.password_lineEdit, 4, 3)
+
+        line2 = QFrame()
+        line2.setFrameShape(QFrame.HLine)
+        line2.setFrameShadow(QFrame.Sunken)
+        layout.addWidget(line2, 5, 3)
 
         self.login_QPushButton = QPushButton()
         self.login_QPushButton.setText("Login")
         self.login_QPushButton.setStyleSheet(
             "QPushButton"
             "{"
-            "font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                background-color: rgb(145, 255, 246)"
+            "font-size: 14pt; border-radius: 10px; background-color: rgba(145, 255, 246, 190); background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(28, 76, 173, 190), stop:1 rgba(122, 166, 255,190));"
+            "}"
+            "QPushButton::hover"
+            "{"
+            "font-size: 14pt; border-radius: 10px;background-color: rgba(145, 255, 246,190); background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(10, 50, 133, 190), stop:1 rgba(122, 166, 255,190));"
             "}"
             "QPushButton::pressed"
             "{"
-            "font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                background-color: rgb(0, 217, 199)"
+            "font-size: 14pt; border-radius: 10px; background-color: rgba(0, 217, 199, 190)"
             "}"
         )
         self.login_QPushButton.clicked.connect(self.handle_login)
-        layout.addWidget(self.login_QPushButton, 2, 1)
+        layout.addWidget(self.login_QPushButton, 6, 3)
 
-        self.setLayout(layout)
+        layout.setRowStretch(0, 0)
+        layout.setRowStretch(1, 3)
+        layout.setRowStretch(1, 2)
 
     def handle_login(self):
 
@@ -70,57 +96,73 @@ class LoginWindow(QDialog):
             QMessageBox.warning(
                 self, "Error", "Invalid Credentials. Please Try again.")
 
+    def sizeHint(self):
+        return QSize(400, 520)
+
+    def exit_app(self):
+        sys.exit()
+
+
+Stylesheet = """
+#Custom_Widget {
+    background: rgba(34, 93, 138, 190);
+    border-radius: 20px;
+    opacity: 180;                   
+}
+#closeButton {
+    min-width: 36px;
+    min-height: 36px;
+    font-family: "Webdings";
+    qproperty-text: "r";
+    border-radius: 10px;
+}
+#closeButton:hover {
+    color: #ccc;
+    background: white;
+}
+"""
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
-        super().__init__()
+        super(MainWindow, self).__init__()
 
+        self.setStyleSheet(
+            "border-radius: 20px; \
+        background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(209, 107, 165, 255), stop:1 rgba(255,255,255,255));")
+
+        # Widget
+        self.centralwidget = QWidget(self)
         self.setWindowTitle('Weather On Route')
         self.resize(800, 600)
         self.layout = QFormLayout()
-        self.setStyleSheet(
-            "background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(209, 107, 165, 255), stop:1 rgba(255,255,255,255));")
+
+        self._create_menu_bar()
 
         self.origin = QLineEdit()
         self.origin.setPlaceholderText("Starting address here")
-        self.origin.setStyleSheet("font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                border-width: 1.5px; \
-                                border-color: white;")
+        self.origin.setStyleSheet(
+            "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         self.destination = QLineEdit()
         self.destination.setPlaceholderText("Ending address here")
-        self.destination.setStyleSheet("font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                border-width: 1.5px; \
-                                border-color: white;")
+        self.destination.setStyleSheet(
+            "font-size: 14pt; background-color: rgba(0,0,0,0);")
 
         self.weather_type = QComboBox()
         self.weather_type.addItems(['Snow', 'Rain', 'Clouds'])
-        self.weather_type.setStyleSheet("font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                border-width: 1.5px; \
-                                border-color: white;")
+        self.weather_type.setStyleSheet("font-size: 14pt;")
 
         self.date = QDateEdit()
         self.date.setDate(datetime.date.today())
-        self.date.setStyleSheet("font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                border-width: 1.5px; \
-                                border-color: white;")
+        self.date.setStyleSheet(
+            "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         self.number_of_checks = QLineEdit()
         self.number_of_checks.setPlaceholderText(
             "Number of locations to check for weather")
-        self.number_of_checks.setStyleSheet("font-size: 14pt; \
-                                border-style: solid; \
-                                border-radius: 10px; \
-                                border-width: 1.5px; \
-                                border-color: white;")
+        self.number_of_checks.setStyleSheet(
+            "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         self.origin_label = QLabel("Origin:")
         self.origin_label.setStyleSheet(
@@ -179,14 +221,20 @@ class MainWindow(QMainWindow):
     def find_route_and_weather(self):
         print("Function to find route will go here.")
 
+    def _create_menu_bar(self):
+        menuBar = self.menuBar()
+        menuBar.setStyleSheet("background-color: rgb(255,255,255)")
+        menuBar.addMenu(QMenu("&File", self))
+        menuBar.addMenu(QMenu("&Settings", self))
+        menuBar.addMenu(QMenu("&Help", self))
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    login = LoginWindow()
+    login = LoginForm()
 
     if login.exec_() == QDialog.Accepted:
-        print("hi")
         main_window = MainWindow()
         main_window.show()
         sys.exit(app.exec_())
