@@ -23,6 +23,9 @@ class LoginForm(QDialog):
 
         self.initUi()
 
+        QMessageBox.information(
+            self, "Logging In", "New! Log in a with your credentials to load your personal settings.")
+
     def initUi(self):
         # widget is used as background and rounded corners.
         self.widget = QWidget(self)
@@ -140,12 +143,12 @@ class MainWindow(QMainWindow):
         self._create_menu_bar()
 
         self.origin = QLineEdit()
-        self.origin.setPlaceholderText("Starting address here")
+        self.origin.setPlaceholderText("Example: Seattle, WA")
         self.origin.setStyleSheet(
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         self.destination = QLineEdit()
-        self.destination.setPlaceholderText("Ending address here")
+        self.destination.setPlaceholderText("Example: Spokane, WA")
         self.destination.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0);")
 
@@ -164,12 +167,22 @@ class MainWindow(QMainWindow):
         self.number_of_checks.setStyleSheet(
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
-        self.origin_label = QLabel("Origin:")
+        # Add description of what to enter by user
+        directions = QLabel(
+            f"""To find your route directions and the weather along it, please enter your starting address and ending address\n\
+Next choose the type of weather you would like search for along your route using the available options in the drop down menu.\n\
+Finally select your date of travel (within 10 days of present day), then click Produce Map\n\
+You can make any changes to the form and clicking Produce Map will produce the adjusted map.""")
+        directions.setStyleSheet(
+            "font-size: 10pt; background-color: rgba(0,0,0,0%);")
+        self.layout.addRow(directions)
+
+        self.origin_label = QLabel("Starting Address:")
         self.origin_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.origin_label, self.origin)
 
-        self.destination_label = QLabel("Destination:")
+        self.destination_label = QLabel("Ending Address:")
         self.destination_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.destination_label, self.destination)
