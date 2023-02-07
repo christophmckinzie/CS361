@@ -1,4 +1,6 @@
+import Weather
 import sys
+import io
 import datetime
 from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import (QApplication, QLineEdit, QMainWindow, QWidget, QLabel,
@@ -107,19 +109,19 @@ class LoginForm(QDialog):
 
 
 Stylesheet = """
-#Custom_Widget {
+# Custom_Widget {
     background: rgba(34, 93, 138, 190);
     border-radius: 20px;
-    opacity: 180;                   
+    opacity: 180;
 }
-#closeButton {
+# closeButton {
     min-width: 36px;
     min-height: 36px;
     font-family: "Webdings";
     qproperty-text: "r";
     border-radius: 10px;
 }
-#closeButton:hover {
+# closeButton:hover {
     color: #ccc;
     background: white;
 }
@@ -142,23 +144,23 @@ class MainWindow(QMainWindow):
 
         self._create_menu_bar()
 
-        self.origin = QLineEdit()
-        self.origin.setPlaceholderText("Example: Seattle, WA")
-        self.origin.setStyleSheet(
+        self.start_address_widget = QLineEdit()
+        self.start_address_widget.setPlaceholderText("Example: Seattle, WA")
+        self.start_address_widget.setStyleSheet(
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
-        self.destination = QLineEdit()
-        self.destination.setPlaceholderText("Example: Spokane, WA")
-        self.destination.setStyleSheet(
+        self.end_address_widget = QLineEdit()
+        self.end_address_widget.setPlaceholderText("Example: Spokane, WA")
+        self.end_address_widget.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0);")
 
-        self.weather_type = QComboBox()
-        self.weather_type.addItems(['Snow', 'Rain', 'Clouds'])
-        self.weather_type.setStyleSheet("font-size: 14pt;")
+        self.weather_type_widget = QComboBox()
+        self.weather_type_widget.addItems(['Snow', 'Rain', 'Clouds'])
+        self.weather_type_widget.setStyleSheet("font-size: 14pt;")
 
-        self.date = QDateEdit()
-        self.date.setDate(datetime.date.today())
-        self.date.setStyleSheet(
+        self.travel_date_widget = QDateEdit()
+        self.travel_date_widget.setDate(datetime.date.today())
+        self.travel_date_widget.setStyleSheet(
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         self.number_of_checks = QLineEdit()
@@ -168,37 +170,34 @@ class MainWindow(QMainWindow):
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         # Add description of what to enter by user
-        directions = QLabel(
-            f"""To find your route directions and the weather along it, please enter your starting address and ending address\n\
-Next choose the type of weather you would like search for along your route using the available options in the drop down menu.\n\
-Finally select your date of travel (within 10 days of present day), then click Produce Map\n\
-You can make any changes to the form and clicking Produce Map will produce the adjusted map.""")
+        directions_text = f"""To find your route directions and the weather along it, please enter your starting address and ending address\n\Next choose the type of weather you would like search for along your route using the available options in the drop down menu.\n\Finally select your date of travel (within 10 days of present day), then click Produce Map\n\You can make any changes to the form and clicking Produce Map will produce the adjusted map.""")
+        directions=QLabel(directions_text)
         directions.setStyleSheet(
             "font-size: 10pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(directions)
 
-        self.origin_label = QLabel("Starting Address:")
+        self.origin_label=QLabel("Starting Address:")
         self.origin_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
-        self.layout.addRow(self.origin_label, self.origin)
+        self.layout.addRow(self.origin_label, self.start_address_widget)
 
-        self.destination_label = QLabel("Ending Address:")
+        self.destination_label=QLabel("Ending Address:")
         self.destination_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
-        self.layout.addRow(self.destination_label, self.destination)
+        self.layout.addRow(self.destination_label, self.end_address_widget)
 
-        self.weather_type_label = QLabel("Weather Type:")
+        self.weather_type_label=QLabel("Weather Type:")
         self.weather_type_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
-        self.layout.addRow(self.weather_type_label, self.weather_type)
+        self.layout.addRow(self.weather_type_label, self.weather_type_widget)
 
-        self.travel_date_label = QLabel("Date of Travel:")
+        self.travel_date_label=QLabel("Date of Travel:")
         self.travel_date_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
-        self.layout.addRow(self.travel_date_label, self.date)
+        self.layout.addRow(self.travel_date_label, self.travel_date_widget)
 
         # adding pushbutton
-        self.pushButton = QPushButton()
+        self.pushButton=QPushButton()
         self.pushButton.setText("Produce Map")
         self.pushButton.setStyleSheet(
             "QPushButton"
@@ -227,15 +226,32 @@ You can make any changes to the form and clicking Produce Map will produce the a
         self.layout.addWidget(self.pushButton)
 
         # add layout to widget and set as central widget
-        widget = QWidget()
+        widget=QWidget()
         widget.setLayout(self.layout)
         self.setCentralWidget(widget)
 
-    def find_route_and_weather(self):
-        print("Function to find route will go here.")
+    def get_user_input(self):
+        self.start_address=self.start_address_widget.text()
+        self.end_address=self.end_address_widget.text()
+        self.weather_type=self.weather_type_widget.text()
+        self.travel_date=self.travel_date_widget.date().toPyDate().strftime("%Y-%m-%d")
+
+    def create_and_display_map(self):
+        # call WeatherClass.py and create map
+        wmap = Weather.WeatherMapping(start_address = self.start_address, end_address = self.end_address,
+                                 weather_type = self.weather_type, travel_date = self.travel_date)
+        self.map = wmap.weather_map()
+
+        # save map data
+        data=io.BytesIO()
+        self.map.save(data, close_file = False)
+
+        # get map data
+        self.browser.setHtml(data.getvalue().decode())
+        self.layout.addWidget(self.browser)
 
     def _create_menu_bar(self):
-        menuBar = self.menuBar()
+        menuBar=self.menuBar()
         menuBar.setStyleSheet("background-color: rgb(255,255,255)")
         menuBar.addMenu(QMenu("&File", self))
         menuBar.addMenu(QMenu("&Settings", self))
@@ -243,11 +259,11 @@ You can make any changes to the form and clicking Produce Map will produce the a
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app=QApplication(sys.argv)
 
-    login = LoginForm()
+    login=LoginForm()
 
     if login.exec_() == QDialog.Accepted:
-        main_window = MainWindow()
+        main_window=MainWindow()
         main_window.show()
         sys.exit(app.exec_())
