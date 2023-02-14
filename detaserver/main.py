@@ -21,7 +21,7 @@ def read_root():
 
 
 @app.get("/owm_onecall/lat={lat}&lon={lon}")
-def read_item(lat: float, lon: float):
+def owm_onecall(lat: float, lon: float):
 
     try:
         request = f"""https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&appid={owm_key}"""
