@@ -22,9 +22,9 @@ class WeatherMapping:
     def __init__(self, start_address, end_address, weather_type, travel_date=datetime.date.today().strftime("%Y-%m-%d"), num_of_checks=5):
         # initialize endpoints and api keys
         self.endpoint = 'https://maps.googleapis.com/maps/api/directions/json?'
-        self.gmaps_key = 'AIzaSyDgnzt-edsvazLF4S7XWOMcK78PAOy2i_g'
+        self.gmaps_key = ''
         self.googlemaps = googlemaps.Client(self.gmaps_key)
-        self.owm_key = "54df9da64ee34a820bf3312390615de6"
+        self.owm_key = ""
 
         self.start_address = start_address.replace(' ', '+')
         self.end_address = end_address.replace(' ', '+')
