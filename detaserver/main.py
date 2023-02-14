@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import urllib.request
 import json
+import config
 
 # to run the server enter the command below in shell
 # uvicorn server:app --port 8000 --reload
@@ -11,7 +12,7 @@ import json
 
 
 app = FastAPI()
-owm_key = "54df9da64ee34a820bf3312390615de6"
+owm_key = config.owm_key
 
 
 @app.get("/")
