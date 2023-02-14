@@ -6,3 +6,6 @@ lon---> float
 
 Microservice Usage:
 GET /owm_onecall/lat={lat}&lon={lon}
+
+UML Microservice (API) Sequence Diagram:
+![image](https://user-images.githubusercontent.com/57605404/218647364-20b4d51b-500d-457e-b42f-330d8322b0bd.png)
