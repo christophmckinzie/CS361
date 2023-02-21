@@ -1,8 +1,8 @@
 Microservice Description/Communication Contract:
-There is a single GET request available from my microservice's API which is set up using Deta Cloud server. Upon request, the endpoint of the API will be given. 
+There is a single GET request available from my microservice's API which is set up using Deta Space server.
 
 Microservice Usage:
-{GET} /owm_onecall/lat={lat}&lon={lon}
+{GET} https://cs361-2-l3925805.deta.app/onecall/lat={lat}&lon={lon}
 
 "lat" and "lon" are the latitude and longitude of the location you wish to receive weather data about. This API call in turns sends a request to Openweathermaps API "onecall" GET request. The response from the microservice is in JSON.
 
