@@ -17,10 +17,10 @@ owm_key = config.owm_key
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "Jared Chang"}
 
 
-@app.get("/owm_onecall/lat={lat}&lon={lon}")
+@app.get("/onecall/lat={lat}&lon={lon}")
 def owm_onecall(lat: float, lon: float):
 
     try:
