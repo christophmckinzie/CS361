@@ -1,1 +1,0 @@
-{"id":"2f0fe296-19d4-4f81-a0ad-cd2b9ec68b08","space":52497,"runtime":"python3.9","name":"detaserver","path":"oxcbv8","project":"b0bfz8g7","account":"144798365827","region":"us-east-1","deps":["fastapi"],"envs":null,"public":true,"log_level":"debug","cron":""}
