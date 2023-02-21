@@ -88,7 +88,7 @@ class WeatherMapping:
         Docstring
         """
 
-        owm_request = f'''https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={ self.owm_key}'''
+        owm_request = f'''https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={self.owm_key}'''
 
         owm_response = urllib.request.urlopen(owm_request).read()
         weather_response = json.loads(owm_response)
