@@ -170,35 +170,35 @@ class MainWindow(QMainWindow):
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
         # Add description of what to enter by user
-        directions_text = f"""To find your route directions and the weather along it, please enter your starting address and ending address\n\Next choose the type of weather you would like search for along your route using the available options in the drop down menu.\n\Finally select your date of travel (within 10 days of present day), then click Produce Map\n\You can make any changes to the form and clicking Produce Map will produce the adjusted map.""")
-        directions=QLabel(directions_text)
+        directions_text = f"""To find your route directions and the weather along it, please enter your starting address and ending address\nNext choose the type of weather you would like search for along your route using the available options in the drop down menu.\nFinally select your date of travel (within 10 days of present day), then click Produce Map\nYou can make any changes to the form and clicking Produce Map will produce the adjusted map."""
+        directions = QLabel(directions_text)
         directions.setStyleSheet(
             "font-size: 10pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(directions)
 
-        self.origin_label=QLabel("Starting Address:")
+        self.origin_label = QLabel("Starting Address:")
         self.origin_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.origin_label, self.start_address_widget)
 
-        self.destination_label=QLabel("Ending Address:")
+        self.destination_label = QLabel("Ending Address:")
         self.destination_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.destination_label, self.end_address_widget)
 
-        self.weather_type_label=QLabel("Weather Type:")
+        self.weather_type_label = QLabel("Weather Type:")
         self.weather_type_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.weather_type_label, self.weather_type_widget)
 
-        self.travel_date_label=QLabel("Date of Travel:")
+        self.travel_date_label = QLabel("Date of Travel:")
         self.travel_date_label.setStyleSheet(
             "font-size: 14pt; background-color: rgba(0,0,0,0%);")
         self.layout.addRow(self.travel_date_label, self.travel_date_widget)
 
         # adding pushbutton
-        self.pushButton=QPushButton()
-        self.pushButton.setText("Produce Map")
+        self.pushButton = QPushButton()
+        self.pushButton.setText("Find Weather Along Route")
         self.pushButton.setStyleSheet(
             "QPushButton"
             "{"
@@ -222,36 +222,39 @@ class MainWindow(QMainWindow):
         self.pushButton.setGeometry(QRect(200, 150, 93, 28))
 
         # adding signal and slot
-        self.pushButton.clicked.connect(self.find_route_and_weather)
+        self.pushButton.clicked.connect(self.create_and_display_map)
         self.layout.addWidget(self.pushButton)
 
         # add layout to widget and set as central widget
-        widget=QWidget()
+        widget = QWidget()
         widget.setLayout(self.layout)
         self.setCentralWidget(widget)
 
     def get_user_input(self):
-        self.start_address=self.start_address_widget.text()
-        self.end_address=self.end_address_widget.text()
-        self.weather_type=self.weather_type_widget.text()
-        self.travel_date=self.travel_date_widget.date().toPyDate().strftime("%Y-%m-%d")
+        self.start_address = self.start_address_widget.text()
+        self.end_address = self.end_address_widget.text()
+        self.weather_type = self.weather_type_widget.currentText()
+        self.travel_date = self.travel_date_widget.date().toPyDate().strftime("%d-%m-%Y")
 
     def create_and_display_map(self):
+        # get user input
+        self.get_user_input()
+
         # call WeatherClass.py and create map
-        wmap = Weather.WeatherMapping(start_address = self.start_address, end_address = self.end_address,
-                                 weather_type = self.weather_type, travel_date = self.travel_date)
-        self.map = wmap.weather_map()
+        wmap = Weather.WeatherMapping(start_address=self.start_address, end_address=self.end_address,
+                                      weather_type=self.weather_type, travel_date=self.travel_date)
+        self.map = wmap.create_map()
 
         # save map data
-        data=io.BytesIO()
-        self.map.save(data, close_file = False)
+        data = io.BytesIO()
+        self.map.save(data, close_file=False)
 
         # get map data
         self.browser.setHtml(data.getvalue().decode())
         self.layout.addWidget(self.browser)
 
     def _create_menu_bar(self):
-        menuBar=self.menuBar()
+        menuBar = self.menuBar()
         menuBar.setStyleSheet("background-color: rgb(255,255,255)")
         menuBar.addMenu(QMenu("&File", self))
         menuBar.addMenu(QMenu("&Settings", self))
@@ -259,11 +262,11 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-    app=QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-    login=LoginForm()
+    login = LoginForm()
 
     if login.exec_() == QDialog.Accepted:
-        main_window=MainWindow()
+        main_window = MainWindow()
         main_window.show()
         sys.exit(app.exec_())
