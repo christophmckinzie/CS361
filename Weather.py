@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import re
 import urllib.request
+import requests
 import json
 # import gmaps # for embedding googlemap in jupyter nb
 from geopy import geocoders
@@ -88,19 +89,23 @@ class WeatherMapping:
         Docstring
         """
 
-        owm_request = f'''https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={self.owm_key}'''
+        # coordinates = {"lat": f"{lat}", "lon": f"{lon}"}
+        # url = 'https://weather-1-x8997458.deta.app/weather'
+        # response = requests.post(url, json=coordinates)
 
-        owm_response = urllib.request.urlopen(owm_request).read()
-        weather_response = json.loads(owm_response)
+        url = f'https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={self.owm_key}'
 
-        for i in weather_response['list']:
-            try:
-                if i[self.weather_type]:
-                    return (True)
-            except KeyError:
-                pass
+        response = urllib.request.urlopen(url).read()
+        response = json.loads(response)
 
-        return (False)
+        for i in response['list']:
+            forecast_date = datetime.datetime.strptime(
+                i['dt_txt'], "%Y-%m-%d %H:%M:%S").date().strftime('%Y-%m-%d')
+            if forecast_date == self.date_of_travel:
+                if i['weather'][0]['main'] == self.weather_type:
+                    return (response['city']['id'])
+
+        return (None)
 
     def _get_checkpoint_locations(self):
         """
@@ -108,13 +113,15 @@ class WeatherMapping:
         return: list 
         """
         checkpoint_locations = []
+
         route_length = int(
             self.directions['routes'][0]['legs'][0]['distance']['text'].split(' ')[0])
-        self.number_of_checkpoints = math.ceil(route_length/10)
+
+        self.number_of_checkpoints = math.ceil(route_length/20)
 
         for i in range(1, len(self.route_gps_coords),  math.floor(len(self.route_gps_coords)/self.number_of_checkpoints)):
-            checkpoint_locations.append({'name': f"""{i}""",
-                                         'location': (self.route_gps_coords.iloc[i].values[0], self.route_gps_coords.iloc[i].values[1])})
+            checkpoint_locations.append({'route_index': i,
+                                         'location': [self.route_gps_coords.iloc[i].values[0], self.route_gps_coords.iloc[i].values[1]]})
 
         return (checkpoint_locations)
 
@@ -142,17 +149,30 @@ class WeatherMapping:
 
         # add markers to map
         for i in self.checkpoint_locations:
+            # custom icons
+            if self.weather_type == 'Snow':
+                custom_icon = folium.features.CustomIcon(
+                    'snowflake.png', icon_size=(40, 40))
+            elif self.weather_type == 'Rain':
+                custom_icon = folium.features.CustomIcon(
+                    'raindrops.png', icon_size=(40, 40))
+            else:
+                custom_icon = folium.features.CustomIcon(
+                    'clouds.png', icon_size=(40, 40))
 
-            if self._check_weather(i['location'][0], i['location'][1]) == True:
+            city_id = self._check_weather(i['location'][0], i['location'][1])
 
-                url = f'''https://openweathermap.org/city/{self.checkpoint_locations['name']}'''
+            if city_id:
+                url = f'https://openweathermap.org/city/{city_id}'
                 weblink = f'''<a href=" {url} "target="_blank"> {'Link to weather 5 day forecast'} {'</a>'}'''
 
                 iframe = folium.IFrame(
-                    html=url, width=200, height=75)
+                    html=weblink, width=200, height=75)
+
                 popup = folium.Popup(iframe, max_width=2650)
 
-                folium.Marker(weblink, popup=popup).add_to(self.map)
+                folium.Marker((i['location'][0], i['location']
+                              [1]), popup=popup, icon=custom_icon).add_to(self.map)
 
         return self.map
 
@@ -171,5 +191,5 @@ def weather_map(origin, destination, weather_type, travel_date):
     webbrowser.open('map.html')
 
 
-weather_map("Seattle, WA", "Moses Lake, WA",
-            "Clouds", datetime.datetime.today().strftime('%Y-%m-%d'))
+# weather_map("Seattle, WA", "Moses Lake, WA",
+#             "Snow", (datetime.datetime.today() + datetime.timedelta(1)).strftime('%Y-%m-%d'))
