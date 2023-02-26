@@ -1,6 +1,4 @@
 from fastapi import FastAPI
-import urllib.request
-import json
 import config
 import requests
 
@@ -9,7 +7,7 @@ import requests
 
 # example call to api: https://cs361-1-l3925805.deta.app/onecall/lat=47.753990&lon=-122.163008
 
-# IMPORTANT: REQUIREMENTS.TXT MUST BE ENCODED USING UTF-8 FOR "DETA NEW" COMMAND TO WORK
+# IMPORTANT: REQUIREMENTS.TXT MUST BE ENCODED USING UTF-8 FOR "space new" COMMAND TO WORK
 
 
 app = FastAPI()
