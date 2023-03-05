@@ -4,75 +4,28 @@ import io
 import datetime
 from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtWidgets import (QApplication, QLineEdit, QMainWindow, QWidget, QLabel,
-                             QDateEdit, QPushButton, QComboBox, QFormLayout, QGridLayout, QMessageBox, QDialog, QMenu, QMenuBar)
+                             QDateEdit, QPushButton, QComboBox, QFormLayout, QDialog, QMenu, QVBoxLayout, QMessageBox)
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 
-from PyQt5.QtCore import Qt, QSize, QTimer
-from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QWidget, QFrame,
-                             QPushButton, QGridLayout, QSpacerItem, QMessageBox,
-                             QSizePolicy, QLabel, QApplication, QLineEdit)
+class ApplicationInformation(QDialog):
+    def __init__(self):
+        super(ApplicationInformation, self).__init__()
 
+        self.central_widget = QWidget(self)
+        self.setWindowTitle("Application Description")
+        self.resize(800, 200)
+        self.setMaximumWidth(800)
+        self.layout = QVBoxLayout()
 
-class LoginForm(QDialog):
+        description_label = QLabel("Welcome to my CS361 portfolio project! This applications name is Weather Routing and its purpose is to find weather along a driving route. You will be asked to provide a starting and ending city/address/location, choose the type of weather to search for (three options provided) and your travel date (1-4 days from current day). \n The driving route is provided using Google Maps Directions API. The forecast data is provided using a microservice created by my partner, Jared Chang, which calls OpenWeatherMap's 5 Day / 3 Hour Forecast.\nLimitations: 1) Addresses must be able to be ")
+        description_label.setStyleSheet("font-size: 13pt;")
+        description_label.setWordWrap(True)
+        self.layout.addWidget(description_label, Qt.AlignCenter)
 
-    def __init__(self, *args, **kwargs):
-        super(LoginForm, self).__init__(*args, **kwargs)
-        self.setObjectName('Custom_Dialog')
-        self.setWindowFlags(self.windowFlags() |
-                            Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setStyleSheet(Stylesheet)
-
-        self.initUi()
-
-        QMessageBox.information(
-            self, "Logging In", "New! Log in a with your credentials to load your personal settings.")
-
-    def initUi(self):
-        # widget is used as background and rounded corners.
-        self.widget = QWidget(self)
-        self.widget.setObjectName('Custom_Widget')
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.widget)
-
-        # user interface to widgets
-        layout = QGridLayout(self.widget)
-        # layout.addItem(QSpacerItem(
-        #     0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum), 1, 0)
-
-        self.login_exit_button = QPushButton(
-            'r', self, clicked=self.accept, objectName='closeButton')
-        self.login_exit_button.clicked.connect(self.exit_app)
-        layout.addWidget(self.login_exit_button, 0, 4)
-
-        login_label = QLabel("       ")
-        layout.addWidget(login_label, 1, 2, Qt.AlignCenter)
-
-        self.username_lineEdit = QLineEdit()
-        self.username_lineEdit.setPlaceholderText("  Username")
-        self.username_lineEdit.setStyleSheet(
-            "background-color: rgba(0,0,0,0); font-size: 14pt; border: none; color:white;")
-        layout.addWidget(self.username_lineEdit, 2, 3)
-
-        line1 = QFrame()
-        line1.setFrameShape(QFrame.HLine)
-        line1.setFrameShadow(QFrame.Sunken)
-        layout.addWidget(line1, 3, 3)
-
-        self.password_lineEdit = QLineEdit()
-        self.password_lineEdit.setPlaceholderText("  Password")
-        self.password_lineEdit.setStyleSheet(
-            "background-color: rgba(0,0,0,0); font-size: 14pt; border: none; color: white;")
-        layout.addWidget(self.password_lineEdit, 4, 3)
-
-        line2 = QFrame()
-        line2.setFrameShape(QFrame.HLine)
-        line2.setFrameShadow(QFrame.Sunken)
-        layout.addWidget(line2, 5, 3)
-
-        self.login_QPushButton = QPushButton()
-        self.login_QPushButton.setText("Login")
-        self.login_QPushButton.setStyleSheet(
+        self.open_mainwindow_button = QPushButton()
+        self.open_mainwindow_button.setText("Continue")
+        self.open_mainwindow_button.setStyleSheet(
             "QPushButton"
             "{"
             "font-size: 14pt; border-radius: 10px; background-color: rgba(145, 255, 246, 190); background-color: qlineargradient(spread:pad, x1:0.091, y1:0.101636, x2:0.991379,y2:0.977, stop:0 rgba(28, 76, 173, 190), stop:1 rgba(122, 166, 255,190));"
@@ -86,23 +39,14 @@ class LoginForm(QDialog):
             "font-size: 14pt; border-radius: 10px; background-color: rgba(0, 217, 199, 190)"
             "}"
         )
-        self.login_QPushButton.clicked.connect(self.handle_login)
-        layout.addWidget(self.login_QPushButton, 6, 3)
+        self.open_mainwindow_button.clicked.connect(self.handle_login)
+        self.layout.addWidget(self.open_mainwindow_button, Qt.AlignCenter)
 
-        layout.setRowStretch(0, 0)
-        layout.setRowStretch(1, 3)
-        layout.setRowStretch(1, 2)
+        #
+        self.setLayout(self.layout)
 
     def handle_login(self):
-
-        if self.username_lineEdit.text() == "" and self.password_lineEdit.text() == "":
-            self.accept()
-        else:
-            QMessageBox.warning(
-                self, "Error", "Invalid Credentials. Please Try again.")
-
-    def sizeHint(self):
-        return QSize(400, 520)
+        self.accept()
 
     def exit_app(self):
         sys.exit()
@@ -159,7 +103,8 @@ class MainWindow(QMainWindow):
         self.weather_type_widget.setStyleSheet("font-size: 14pt;")
 
         self.travel_date_widget = QDateEdit()
-        self.travel_date_widget.setDate(datetime.date.today())
+        self.travel_date_widget.setDate(
+            datetime.date.today() + datetime.timedelta(1))
         self.travel_date_widget.setStyleSheet(
             "font-size: 14pt; border-color: none none white none; border: 1.5px; background-color: rgba(0,0,0,0);")
 
@@ -225,33 +170,53 @@ class MainWindow(QMainWindow):
         self.pushButton.clicked.connect(self.create_and_display_map)
         self.layout.addWidget(self.pushButton)
 
+        # add widget for housing html
+        self.browser = QWebEngineView()
+
         # add layout to widget and set as central widget
         widget = QWidget()
         widget.setLayout(self.layout)
         self.setCentralWidget(widget)
 
-    def get_user_input(self):
+    def _get_user_input(self):
+        """
+        
+        """
         self.start_address = self.start_address_widget.text()
         self.end_address = self.end_address_widget.text()
         self.weather_type = self.weather_type_widget.currentText()
-        self.travel_date = self.travel_date_widget.date().toPyDate().strftime("%d-%m-%Y")
+        self.travel_date = self.travel_date_widget.date().toPyDate().strftime("%Y-%m-%d")
 
     def create_and_display_map(self):
-        # get user input
-        self.get_user_input()
 
-        # call WeatherClass.py and create map
-        wmap = Weather.WeatherMapping(start_address=self.start_address, end_address=self.end_address,
-                                      weather_type=self.weather_type, travel_date=self.travel_date)
-        self.map = wmap.create_map()
+        self._get_user_input()
 
-        # save map data
-        data = io.BytesIO()
-        self.map.save(data, close_file=False)
+        # create map
+        try:
+            wmap = Weather.WeatherMapping(
+                self.start_address, self.end_address, self.weather_type, self.travel_date)
+            self.map = wmap.create_map()
 
-        # get map data
-        self.browser.setHtml(data.getvalue().decode())
-        self.layout.addWidget(self.browser)
+            # for testing
+            self.map.save('testmap.html', close_file=False)
+
+            # save map data
+            data = io.BytesIO()
+            self.map.save(data, close_file=False)
+
+            # get map data
+            self.browser.setHtml(data.getvalue().decode())
+            self.layout.addWidget(self.browser)
+            self.resize(1250, 950)
+
+        except Exception as e:
+            if str(e) == 'list index out of range':
+                e = 'Google Directions API could not create driving directions with the addresses provided.\nPlease ensure the addresses are possible to drive between.'
+            msgbox = QMessageBox()
+            msgbox.setWindowTitle("Error Creating Map")
+            msgbox.setText(f"Error when creating map \n{e}")
+            msgbox.setStandardButtons(QMessageBox.Ok)
+            msgbox.exec()
 
     def _create_menu_bar(self):
         menuBar = self.menuBar()
@@ -264,7 +229,7 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    login = LoginForm()
+    login = ApplicationInformation()
 
     if login.exec_() == QDialog.Accepted:
         main_window = MainWindow()

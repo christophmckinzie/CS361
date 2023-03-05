@@ -24,5 +24,14 @@ async def onecall(request: dict):
     lat = request.get("lat")
     lon = request.get("lon")
     weather_response = requests.get(
-        f'''https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={owm_key}''')
+        f'''https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&appid={owm_key}&units=imperial''')
     return weather_response.json()
+
+
+@app.get("/forecast")
+async def forecast(request: dict):
+    lat = request.get("lat")
+    lon = request.get("lon")
+    response = requests.get(
+        f'''https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={owm_key}&units=imperial''')
+    return response.json()

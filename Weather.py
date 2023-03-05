@@ -86,26 +86,33 @@ class WeatherMapping:
 
     def _check_weather(self, lat, lon):
         """
-        Docstring
+        Returns the Openweathermaps city ID if matching weather on matching travel date are found at that location 
+
+        Parameters:
+            lat (float): latitude of location
+            lon (float): longitude of location
+
+        Returns:
+            city_id (int/None): Int if match found, None otherwise
         """
+        city_id = None
 
-        # coordinates = {"lat": f"{lat}", "lon": f"{lon}"}
-        # url = 'https://weather-1-x8997458.deta.app/weather'
-        # response = requests.post(url, json=coordinates)
-
-        url = f'https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={self.owm_key}'
-
-        response = urllib.request.urlopen(url).read()
-        response = json.loads(response)
+        # call partners microservice which returns forecast data for specified lat/lon pair in JSON
+        coordinates = {"lat": f"{lat}", "lon": f"{lon}"}
+        url = 'https://weather-1-x8997458.deta.app/weather'
+        response = requests.post(url, json=coordinates)
+        response = response.json()
 
         for i in response['list']:
             forecast_date = datetime.datetime.strptime(
                 i['dt_txt'], "%Y-%m-%d %H:%M:%S").date().strftime('%Y-%m-%d')
             if forecast_date == self.date_of_travel:
-                if i['weather'][0]['main'] == self.weather_type:
-                    return (response['city']['id'])
+                forecast_weather = i['weather'][0]['main']
+                if forecast_weather == self.weather_type:
+                    city_id = response['city']['id']
+                    return (city_id)
 
-        return (None)
+        return (city_id)
 
     def _get_checkpoint_locations(self):
         """
@@ -149,7 +156,7 @@ class WeatherMapping:
 
         # add markers to map
         for i in self.checkpoint_locations:
-            # custom icons
+            # custom icon creation. this has to be done at each iteration
             if self.weather_type == 'Snow':
                 custom_icon = folium.features.CustomIcon(
                     'snowflake.png', icon_size=(40, 40))
@@ -160,6 +167,7 @@ class WeatherMapping:
                 custom_icon = folium.features.CustomIcon(
                     'clouds.png', icon_size=(40, 40))
 
+            # get city id at location if weather on travel date match. none returned if no match
             city_id = self._check_weather(i['location'][0], i['location'][1])
 
             if city_id:
@@ -167,12 +175,14 @@ class WeatherMapping:
                 weblink = f'''<a href=" {url} "target="_blank"> {'Link to weather 5 day forecast'} {'</a>'}'''
 
                 iframe = folium.IFrame(
-                    html=weblink, width=200, height=75)
+                    html=weblink, width=500, height=75)
 
-                popup = folium.Popup(iframe, max_width=2650)
+                popup = folium.Popup(iframe, max_width=1500)
 
                 folium.Marker((i['location'][0], i['location']
                               [1]), popup=popup, icon=custom_icon).add_to(self.map)
+
+        self.map.save('mapsavedfromweatherclass.html', close_file=False)
 
         return self.map
 
@@ -191,5 +201,5 @@ def weather_map(origin, destination, weather_type, travel_date):
     webbrowser.open('map.html')
 
 
-# weather_map("Seattle, WA", "Moses Lake, WA",
-#             "Snow", (datetime.datetime.today() + datetime.timedelta(1)).strftime('%Y-%m-%d'))
+# weather_map("Seattle, WA", "Moses Lake",
+#             "Clouds", (datetime.datetime.today() + datetime.timedelta(1)).strftime('%Y-%m-%d'))
