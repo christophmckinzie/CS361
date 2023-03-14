@@ -206,8 +206,8 @@ class MainWindow(QMainWindow):
             self.layout.addWidget(self.browser)
             self.resize(1200, 850)
 
-        # this is for catching an exception from the weather class.
         # if the user inputs locations that cannot be connected via roadways, google api will not return data
+        # thus throwing an index out of range error
         except Exception as e:
             if str(e) == 'list index out of range':
                 e = 'Google Directions API could not create driving directions with the addresses provided.\nPlease ensure the addresses real and connected via roadways.'
